@@ -98,13 +98,21 @@ Typical latency is 20 to 90 seconds per request (images are downscaled to about 
 
 ## Backend and frontend
 
-<!-- TODO: teammate fills this in -->
-**Status:** TODO (to be filled in by the teammate who built it).
+The FastAPI backend accepts lab and written radiology report photos at `POST /analyze`. It sends each image to the configured AI server's `/extract` endpoint, applies range and urgent-word checks in code, then asks `/explain` for the Arabic summary. Uploaded images are held in memory.
 
-- What the backend does: `POST /analyze` (image -> `/extract` -> status, urgent flags, doctor routing in code -> `/explain` -> card)
-- How to run it: TODO
-- Required `.env` values: TODO (AI server URL and key)
-- Frontend: TODO
+Run the backend from PowerShell:
+
+```powershell
+cd backend
+py -m venv .venv
+.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+uvicorn app.main:app --reload --port 8000
+```
+
+Configure `backend/.env` with `LLM_API_URL` set to the AI server root URL and `LLM_API_KEY` set to the same key used by the Colab server. Existing URLs ending in `/v1` are also accepted. The backend reads `backend/.env` regardless of the current working directory. The AI server model is configured on the AI server itself.
+
+Open `tahlili.html` in a browser after starting the backend. The page sends `lab_images` and `radiology_images` to `http://localhost:8000/analyze` and displays the returned report.
 
 ## Roadmap
 

@@ -6,16 +6,11 @@
 #           - /health for a quick "is the server up?" check.
 # Run     : uvicorn app.main:app --reload --port 8000
 # =============================================================================
-import logging
-
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .config import settings
 from .routes import router
-
-logging.basicConfig(level=logging.INFO)
-log = logging.getLogger("tahlili")
 
 app = FastAPI(title="Tahlili API", version="1.0.0")
 
@@ -29,11 +24,7 @@ app.add_middleware(
 
 app.include_router(router)
 
-if settings.mock_llm:
-    log.warning("MOCK_LLM is ON: returning demo data, the real model is NOT called.")
-
-
 @app.get("/health")
 def health() -> dict:
-    """Quick status check (also shows if mock mode is on)."""
-    return {"status": "ok", "mock": settings.mock_llm}
+    """Quick status check for the backend process."""
+    return {"status": "ok"}
