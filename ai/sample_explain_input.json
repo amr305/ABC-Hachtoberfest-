@@ -1,0 +1,12 @@
+{
+  "report_type": "lab",
+  "results": [
+    {"name": "Hemoglobin", "value": 9.8, "unit": "g/dL", "status": "low", "ref_low": 13.5, "ref_high": 17.5},
+    {"name": "Ferritin", "value": 8, "unit": "ng/mL", "status": "low", "ref_low": 30, "ref_high": 400},
+    {"name": "HbA1c", "value": 5.4, "unit": "%", "status": "normal", "ref_low": null, "ref_high": 5.7},
+    {"name": "TSH", "value": 2.1, "unit": "uIU/mL", "status": "normal", "ref_low": 0.4, "ref_high": 4.0}
+  ],
+  "radiology": null,
+  "doctor_type": "باطنة",
+  "urgent_flags": []
+}

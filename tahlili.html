@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>تحليلي - افهم تحاليلك وتقارير أشعتك</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#0f2a5c; --navy-2:#1d4796; --ink:#1c2b4a; --muted:#5d6b85;
+  --bg:#f4f7fc; --card:#ffffff; --line:#dde6f3;
+  --green:#1f8f5f; --green-bg:#e8f6ef;
+  --yellow:#a8740a; --yellow-bg:#fff5d9;
+  --red:#c8323c; --red-bg:#fdecee;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:'Cairo',Tahoma,'Segoe UI',sans-serif;background:var(--bg);color:var(--ink);line-height:1.9;font-size:17px}
+header{background:var(--navy);color:#fff;padding:30px 16px 34px;text-align:center}
+header h1{margin:0;font-size:2rem;font-weight:800}
+header p{margin:4px 0 0;opacity:.88}
+main{max-width:760px;margin:0 auto;padding:22px 16px 60px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;margin-bottom:16px}
+h2{margin:0;font-size:1.15rem;color:var(--navy)}
+.hint{margin:0 0 12px;color:var(--muted);font-size:.93rem}
+.drop{display:block;border:2px dashed #b7c7e4;border-radius:12px;padding:22px 12px;text-align:center;cursor:pointer;background:#f9fbff;color:var(--navy-2);font-weight:600}
+.drop:hover,.drop.over{background:#eef3fc;border-color:var(--navy-2)}
+.drop input{display:none}
+.thumbs{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+.thumb{position:relative;width:84px;height:84px;border-radius:10px;overflow:hidden;border:1px solid var(--line)}
+.thumb img{width:100%;height:100%;object-fit:cover}
+.thumb button{position:absolute;top:4px;left:4px;width:24px;height:24px;border:0;border-radius:50%;background:rgba(15,42,92,.88);color:#fff;cursor:pointer;font-size:16px;line-height:1}
+#submit{display:block;width:100%;padding:15px;border:0;border-radius:12px;background:var(--navy);color:#fff;font:inherit;font-weight:700;font-size:1.1rem;cursor:pointer}
+#submit:hover:not(:disabled){background:var(--navy-2)}
+#submit:disabled{background:#aab6cc;cursor:not-allowed}
+:focus-visible{outline:3px solid var(--navy-2);outline-offset:2px}
+.msg{display:none;margin-top:14px;padding:12px 14px;border-radius:10px;text-align:center}
+.msg.error{background:var(--red-bg);color:var(--red)}
+.msg.loading{background:#eaf0fb;color:var(--navy)}
+.spin{display:inline-block;width:16px;height:16px;margin-inline-start:8px;border:3px solid #b7c7e4;border-top-color:var(--navy);border-radius:50%;vertical-align:middle;animation:r 1s linear infinite}
+@keyframes r{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.spin{animation:none}}
+
+#report{display:none}
+.overall{border-radius:16px;padding:22px 20px;margin-bottom:16px;border:2px solid}
+.overall h2{font-size:1.5rem;margin-bottom:6px}
+.overall p{margin:0}
+.item{border-radius:14px;padding:16px 18px;margin-bottom:12px;background:var(--card);border:1px solid var(--line);border-inline-start:8px solid}
+.item-top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.item-name{font-weight:700;font-size:1.1rem;color:var(--navy)}
+.value{font-weight:800;direction:ltr;unicode-bidi:isolate}
+.badge{padding:2px 14px;border-radius:999px;font-weight:700;font-size:.92rem}
+.item p{margin:6px 0 0}
+.green{border-color:var(--green)} .green .badge,.overall.green{background:var(--green-bg);color:var(--green)}
+.yellow{border-color:var(--yellow)} .yellow .badge,.overall.yellow{background:var(--yellow-bg);color:var(--yellow)}
+.red{border-color:var(--red)} .red .badge,.overall.red{background:var(--red-bg);color:var(--red)}
+.sec-title{margin:24px 0 10px;font-size:1.2rem;color:var(--navy)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.92rem;color:var(--muted);margin-bottom:10px}
+.dot{display:inline-block;width:12px;height:12px;border-radius:50%;margin-inline-end:5px;vertical-align:middle}
+ul.q{margin:8px 0 0;padding-inline-start:22px}
+.note{color:var(--muted);font-size:.9rem;text-align:center;margin-top:22px}
+</style>
+</head>
+<body>
+<header>
+  <h1>تحليلي</h1>
+  <p>صوّر تحاليلك وتقرير الأشعة، وافهم نتيجتك بكلام بسيط</p>
+</header>
+
+<main>
+  <section class="card">
+    <h2>صور التحاليل</h2>
+    <p class="hint">صوّر ورقة التحليل اللي جاية من المعمل، ممكن أكتر من صورة.</p>
+    <label class="drop" id="lab-drop">اضغط هنا أو اسحب الصور
+      <input type="file" id="lab-input" accept="image/*" multiple>
+    </label>
+    <div class="thumbs" id="lab-thumbs"></div>
+  </section>
+
+  <section class="card">
+    <h2>صور تقرير الأشعة</h2>
+    <p class="hint">صوّر الورقة المكتوبة اللي أخدتها مع الأشعة (مش صورة الأشعة نفسها).</p>
+    <label class="drop" id="rad-drop">اضغط هنا أو اسحب الصور
+      <input type="file" id="rad-input" accept="image/*" multiple>
+    </label>
+    <div class="thumbs" id="rad-thumbs"></div>
+  </section>
+
+  <button id="submit" type="button" disabled>حلّل تحاليلي</button>
+  <div class="msg loading" id="loading">بنقرا الورق ونجهز التقرير، ثواني<span class="spin"></span></div>
+  <div class="msg error" id="error"></div>
+
+  <section id="report" aria-live="polite">
+    <h2 class="sec-title">تقريرك</h2>
+    <div class="legend">
+      <span><i class="dot" style="background:var(--green)"></i>كويس</span>
+      <span><i class="dot" style="background:var(--yellow)"></i>متوسط، محتاج متابعة</span>
+      <span><i class="dot" style="background:var(--red)"></i>فيه مشكلة، كلم دكتور</span>
+    </div>
+    <div id="overall"></div>
+    <div id="labs"></div>
+    <div id="rads"></div>
+    <div id="doctor"></div>
+    <p class="note">ده مش تشخيص، ده توضيح للأرقام والتقارير. الدكتور هو اللي يحدد العلاج.</p>
+  </section>
+</main>
+
+<script>
+// ===== إعدادات =====
+const API_URL = "http://localhost:8000/analyze"; // غيّره لرابط الباك بتاعك
+const DEMO = false;                              // خليه true لتجربة الشكل من غير باك
+
+// الرد المتوقع من الباك (JSON):
+// { overall:"green|yellow|red", summary:"...",
+//   results:[{name,value,unit,status,explanation}],
+//   radiology:[{type,findings,status,explanation}],
+//   doctor:"باطنة", questions:["..."] }
+const DEMO_DATA = {
+  overall:"yellow", summary:"أغلب نتايجك كويسة، بس عندك نقص بسيط في الحديد محتاج متابعة.",
+  results:[
+    {name:"فيتامين د", value:"50", unit:"ng/mL", status:"green", explanation:"رقمك كويس جدا وتمام، مفيش حاجة تقلق."},
+    {name:"الهيموجلوبين", value:"10.2", unit:"g/dL", status:"yellow", explanation:"أقل شوية من الطبيعي، وده ممكن يكون من نقص الحديد."},
+    {name:"السكر التراكمي", value:"8.4", unit:"%", status:"red", explanation:"عالي عن الطبيعي، ومحتاج تكلم دكتور في أقرب وقت."}
+  ],
+  radiology:[{type:"سونار على البطن", findings:"دهون بسيطة على الكبد (درجة أولى)", status:"yellow", explanation:"معناها إن فيه دهون قليلة على الكبد، وغالبا بتتحسن بالأكل والحركة."}],
+  doctor:"باطنة أو غدد",
+  questions:["هل الهيموجلوبين الواطي سببه نقص حديد؟","محتاج أعمل تحليل متابعة إمتى؟"]
+};
+
+// ===== رفع الصور =====
+const files = {lab:[], rad:[]};
+const $ = id => document.getElementById(id);
+
+function setup(kind){
+  const input = $(kind+'-input'), drop = $(kind+'-drop');
+  input.addEventListener('change', () => { add(kind,[...input.files]); input.value=''; });
+  ['dragover','dragenter'].forEach(e => drop.addEventListener(e, ev => {ev.preventDefault(); drop.classList.add('over');}));
+  ['dragleave','drop'].forEach(e => drop.addEventListener(e, ev => {ev.preventDefault(); drop.classList.remove('over');}));
+  drop.addEventListener('drop', ev => add(kind,[...ev.dataTransfer.files]));
+}
+function add(kind, list){
+  list.filter(f => f.type.startsWith('image/')).forEach(f => files[kind].push(f));
+  renderThumbs(kind);
+}
+function renderThumbs(kind){
+  const box = $(kind+'-thumbs'); box.innerHTML = '';
+  files[kind].forEach((f,i) => {
+    const d = document.createElement('div'); d.className = 'thumb';
+    const img = document.createElement('img'); img.alt = '';
+    img.src = URL.createObjectURL(f); img.onload = () => URL.revokeObjectURL(img.src);
+    const b = document.createElement('button'); b.type = 'button'; b.textContent = '×'; b.title = 'شيل الصورة';
+    b.onclick = () => { files[kind].splice(i,1); renderThumbs(kind); };
+    d.append(img,b); box.append(d);
+  });
+  $('submit').disabled = files.lab.length + files.rad.length === 0;
+}
+setup('lab'); setup('rad');
+
+// ===== الإرسال =====
+$('submit').addEventListener('click', async () => {
+  $('error').style.display = 'none'; $('report').style.display = 'none';
+  $('loading').style.display = 'block'; $('submit').disabled = true;
+  try{
+    let data;
+    if(DEMO){ await new Promise(r => setTimeout(r,1200)); data = DEMO_DATA; }
+    else{
+      const fd = new FormData();
+      files.lab.forEach(f => fd.append('lab_images', f));
+      files.rad.forEach(f => fd.append('radiology_images', f));
+      const res = await fetch(API_URL, {method:'POST', body:fd});
+      if(!res.ok) throw new Error('HTTP '+res.status);
+      data = await res.json();
+    }
+    showReport(data);
+  }catch(e){
+    $('error').textContent = 'حصلت مشكلة وإحنا بنحلل الصور. اتأكد من النت وجرب تاني.';
+    $('error').style.display = 'block';
+  }finally{
+    $('loading').style.display = 'none';
+    $('submit').disabled = files.lab.length + files.rad.length === 0;
+  }
+});
+
+// ===== عرض التقرير =====
+const LABEL = {green:'كويس', yellow:'متوسط', red:'محتاج انتباه'};
+const OVERALL = {green:'حالتك طبيعية', yellow:'فيه حاجات محتاجة متابعة', red:'فيه حاجات محتاجة دكتور قريب'};
+function lvl(s){
+  s = String(s||'').toLowerCase();
+  if(['green','good','normal','ok'].includes(s)) return 'green';
+  if(['yellow','medium','warning','follow'].includes(s)) return 'yellow';
+  return 'red';
+}
+function h(tag, cls, text){
+  const e = document.createElement(tag);
+  if(cls) e.className = cls;
+  if(text !== undefined) e.textContent = text;
+  return e;
+}
+function itemCard(status, title, valueText, body){
+  const l = lvl(status), c = h('div','item '+l), top = h('div','item-top');
+  top.append(h('span','item-name',title));
+  const right = h('span');
+  if(valueText){ right.append(h('span','value',valueText), document.createTextNode('  ')); }
+  right.append(h('span','badge',LABEL[l]));
+  top.append(right); c.append(top);
+  body.filter(Boolean).forEach(t => c.append(h('p','',t)));
+  return c;
+}
+function showReport(d){
+  const results = d.results || [], rads = d.radiology || [];
+  const rank = {green:0, yellow:1, red:2};
+  const all = [...results, ...rads].map(x => lvl(x.status));
+  const overall = d.overall ? lvl(d.overall) : (all.sort((a,b) => rank[b]-rank[a])[0] || 'green');
+
+  const o = h('div','overall '+overall); o.append(h('h2','',OVERALL[overall]));
+  if(d.summary) o.append(h('p','',d.summary));
+  $('overall').replaceChildren(o);
+
+  const labs = $('labs'); labs.replaceChildren();
+  if(results.length) labs.append(h('h2','sec-title','نتايج التحاليل'));
+  results.forEach(r => labs.append(itemCard(r.status, r.name, [r.value, r.unit].filter(Boolean).join(' '), [r.explanation])));
+
+  const rs = $('rads'); rs.replaceChildren();
+  if(rads.length) rs.append(h('h2','sec-title','تقرير الأشعة'));
+  rads.forEach(r => rs.append(itemCard(r.status, r.type, '', [r.findings, r.explanation])));
+
+  const doc = $('doctor'); doc.replaceChildren();
+  if(d.doctor || (d.questions && d.questions.length)){
+    const c = h('div','card'); c.style.marginTop = '20px';
+    if(d.doctor){ c.append(h('h2','','الدكتور المناسب')); c.append(h('p','',d.doctor)); }
+    if(d.questions && d.questions.length){
+      c.append(h('h2','','أسئلة تسأل بيها الدكتور'));
+      const ul = h('ul','q'); d.questions.forEach(q => ul.append(h('li','',q))); c.append(ul);
+    }
+    doc.append(c);
+  }
+  $('report').style.display = 'block';
+  $('report').scrollIntoView({behavior:'smooth', block:'start'});
+}
+</script>
+</body>
+</html>

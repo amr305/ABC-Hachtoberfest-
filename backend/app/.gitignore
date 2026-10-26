@@ -1,0 +1,30 @@
+# Python Virtual Environments
+venv/
+.venv/
+env/
+ENV/
+backend/venv/
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environment variables (للأسرار ومفاتيح الـ API)
+.env
+.env.local
+
+# IDEs and Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Compressed & Log files
+*.log
+*.zip
+*.tar.gz
