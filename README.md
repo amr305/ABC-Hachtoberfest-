@@ -122,7 +122,7 @@ Open `tahlili.html` in a browser after starting the backend. The page sends `lab
 
 ## Team
 
-- TODO: names
+- ABC Team
 
 ## Disclaimer
 
